@@ -1,0 +1,236 @@
+
+
+
+        if(false) {
+            let x = 0;
+            
+
+        }
+
+        return func(arg0, arg1, arg2, arg3, arg4);
+    
+ + 
+ + x;
+ : 12; return ct
+ = a instanceof b ? 
+": 
+'anonymous namespace'::begin(__int64)
+(
+(() => {return -NaN})()
+)()
+): 
+-
+.js
+.min.js.js
+.min.js.js$
+/PrivateFrameworks/CoreUtils.framework/Versions/A/CoreUtils
+/System/Library/Frameworks/CloudKit.framework/CloudKit
+/System/Library/Frameworks/CoreFoundation.framework/CoreFoundation
+/System/Library/Frameworks/CoreFoundation.framework/Versions/A/CoreFoundation
+/System/Library/Frameworks/CoreGraphics.framework/CoreGraphics
+/System/Library/Frameworks/CoreGraphics.framework/Versions/A/CoreGraphics
+/System/Library/Frameworks/CoreML.framework/CoreML
+/System/Library/Frameworks/CoreMedia.framework/CoreMedia
+/System/Library/Frameworks/Foundation.framework/Foundation
+/System/Library/Frameworks/IOKit.framework/Versions/A/IOKit
+/System/Library/Frameworks/JavaScriptCore.framework/JavaScriptCore
+/System/Library/Frameworks/MediaToolbox.framework/MediaToolbox
+/System/Library/PrivateFrameworks/ActionKit.framework/ActionKit
+/System/Library/PrivateFrameworks/ActionKit.framework/Versions/A/ActionKit
+/System/Library/PrivateFrameworks/AppleMediaServices.framework/AppleMediaServices
+/System/Library/PrivateFrameworks/CoreUtils.framework/CoreUtils
+/System/Library/PrivateFrameworks/HomeSharing.framework/HomeSharing
+/System/Library/PrivateFrameworks/PassKitCore.framework/PassKitCore
+/System/Library/PrivateFrameworks/RESync.framework/RESync
+/System/Library/PrivateFrameworks/RESync.framework/Versions/A/RESync
+/System/Library/PrivateFrameworks/SpringBoard.framework/SpringBoard
+/System/Library/PrivateFrameworks/UIKitCore.framework/UIKitCore
+/usr/lib/libicucore.A.dylib
+/usr/lib/libobjc.A.dylib
+/usr/lib/libxml2.2.dylib
+/usr/lib/system/libdyld.dylib
+/usr/lib/system/libsystem_malloc.dylib
+/usr/lib/system/libsystem_platform.dylib
+/usr/lib/system/libsystem_pthread.dylib
+0 0 0 0
+00000000
+0x
+0x3bfdd5904431a5d8
+0x7FFFFFFFFF
+0xFFFFFFFF
+0xfffe000000022334
+0xfffe000000055432
+0xfffe000000066533
+0xfffe000000099234
+14669ca3b1519ba2a8f40be287f646d4d7593eb0
+35fceec39ceadf8b93ba3a29fe4643cb25994558
+57620206d62079baad0e57e6d9ec93120c0f5247
+;
+<a><b><c>1</c></b><b><c>2</c></b></a>
+<math style='display: none'><mrow mathcolor="blue"><mn>14</mn></mrow></math>
+<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0"></xsl:stylesheet>
+?e=
+A/Frameworks/WebCore.framework/Versions/A/WebCore
+AA==
+AGFzbQEAAAABBwJgAABgAAAChcAFgEAHaW1wb3J0cwNmdW4AAA==
+AGFzbQEAAAABsgIBYJYB
+AGFzbQEAAAABtQICYAAAYJYB
+AwIBAQcHAQJmMgCAQAoGAQQAEAAL
+B2ltcG9ydHMAAAE=
+Backup.framework/Versions/A/Backup
+CFRunLoopObserverCreateWithHandler
+CPUType
+CallbackObject
+Content-Type
+DQMBAAA=
+DYKAAYBA
+EncryptedBlocks
+GET
+HeaderKey
+HeaderSeed
+IOKit
+LTgSl5
+MacIntel
+MobileStore/1.0
+Navigator
+NwAA
+POST
+PSNMWj
+PrivateFrameworks/CoreUtils.framework/CoreUtils
+RTCIceGatherer
+RTCPeerConnection
+RoAZdq
+TouchEvent
+UUID
+WasmJitCageCallPrimitive only supports 8 register args, got 
+WebCore.framework/WebCore
+[0.0, 2.2, 3.3, 4.4, 5.5, 6.6, 7.7, 8.8, 9.9, 10.10]
+[0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
+[0.1, 0.3, 1.1, 2.3]
+[0]
+[1.0, 1.2, 1.3]
+[1.1, 1.2, 3.2]
+[1.1, []]
+[1.2, 3.4, 8.3]
+[[1.1, 1.2], [1.2, 1.3], [1.3, 3.4]]
+^https?://
+_
+_CFRunLoopObserverCreateWithHandler
+_EdgeInfoCFArrayReleaseCallBack
+_HTTPConnectionFinalize
+_OBJC_CLASS_$_NSUUID
+_ZN3JSC10LinkBuffer8linkCodeERNS_14MacroAssemblerENS_20JITCompilationEffortE
+_ZN3JSC10LinkBuffer8linkCodeERNS_14MacroAssemblerEPvNS_20JITCompilationEffortE
+_ZN3JSC16jitOperationListE
+_ZN3JSC20SecureARM64EHashPins27allocatePinForCurrentThreadEv
+_ZN3JSC22ExecutableMemoryHandle10createImplEm
+_ZN3WTF13MetaAllocator8allocateERKNS_6LockerINS_4LockEEEm
+_ZN3WTF13MetaAllocator8allocateEmPv
+__AUTH
+__AUTH_CONST
+__DATA
+__DATA_CONST
+__DATA_DIRTY
+__LINKEDIT
+__OBJC_RO
+__TEXT
+__ZN3JSC10LinkBuffer8linkCodeERNS_14MacroAssemblerENS_20JITCompilationEffortE
+__ZN3JSC16jitOperationListE
+__ZN3WTF10fastMallocEm
+__dyld4
+__platform_memmove
+__platform_memset
+__text
+_autohinter_iterator_begin
+_autohinter_iterator_end
+_dlfcn_globallookup
+_dyld_initializer
+_free
+_jitCagePtr
+_malloc
+_tl
+_xmlHashScanFull
+_xmlMalloc
+_xmlSAX2GetPublicId
+alt
+application/javascript
+application/json
+arg0
+arg1
+arg2
+arg3
+arg4
+arraybuffer
+b5135768e043d1b362977b8ba9bff678b9946bcb
+ba712ef6c1bf20758e69ab945d2cdfd51e53dcd8
+bigint
+btl
+cksqlcs_blobBindingValue:destructor:error:
+div
+dlsym
+dowocjfjq[
+dyld
+dyld_v1  arm64e
+en-US
+enet_allocate_packet_payload_default
+error
+externref
+feConvolveMatrix
+fl0
+foo
+func
+g_config
+hPL3On
+http://www.w3.org/2000/svg
+iWQGB1
+if (fl0) { b[L2][0] = _tl; return 0; } else { return b[L2][0]; }
+if(false) {return 
+imports
+jitCagePtr
+jsobj must be a BigUint64Array, or a Uint[8,16,32]Array
+ldm_mml_t
+length
+let x = 2; x += 3; x += 4; return Math.random(1, 1) + 
+lgE=
+libReverseProxyDevice.dylib
+libSystem.B.dylib
+libdyld.dylib
+libomadm.dylib
+libxml2.2.dylib
+libxslt
+mozRTCPeerConnection
+mprotect
+new Uint32Array(10000000);
+null
+number
+obChTK
+opacity: 0.0
+pthread_main_thread_np
+q23
+rgb(0, 0, 255)
+safari
+script
+secondAttribute
+sentence
+src
+string
+style
+test
+text
+text/javascript
+text/xml
+unreachable
+use strict
+v
+var ct
+webkitRTCPeerConnection
+x += 1; x += 1; x += 1; x += 1; x += 1; x += 1; x += 1;
+xmlHashScanFull
+xmlSAX2GetPublicId
+xsltFreeTransformContext
+xsltTransformError
+{"a
+{@foo}
+}
+} {const s=t.t;const e=t.o;const r=t.l;const f=t.i;const l=new Array(o);for(let a=0;a<o;a++){const o=a%2===0?r:f;const i=[s,e,o,-2.5301706769843864e-98,2];let u=i;if(c===false)u=n;l[a]=i;if(u===n){const o=n[0];const s=n[1];const e=n[3];if(!c||e===-2.7130486595895504e-98){const c=o/5e-324;const e=s/5e-324;const r=e+20;n[2]=r*5e-324;t.u(t.h,t,r);t.u(t.k,t,l[a][2],r,c);l[a][2]=null;t.A=true;break}}}t.M[0]=Math.min(t.j.g,t.j.g);return l}
+} {n.m.apply(null,l);n.M[0]=Math.min(n.j.g,n.j.g)}
