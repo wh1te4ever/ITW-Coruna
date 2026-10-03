@@ -75,5 +75,37 @@ seo@seos-MacBook-Air Coruna-20260710 % ./extract.py -o extracted .
 [=] decrypted 24/30 blobs - 60 Mach-O -> extracted/decrypted/
 [!] 6 unresolved: need to collect more keys. e.g. 0d42ae58baf10097 ...
 
+[*] stage 2 round 1: harvested 6 second-level key(s) from nested 0x12345678 configs
+  [OK] a0d313c0b3d6684a key=a1cfc122350d103d... -> macho x1
+  [OK] cb0b19264414e1bf key=30041769ac1061ea... -> macho x1
+  [OK] 1bda4348cfce300f key=7fb9b6821d97f710... -> macho x1
+  [OK] b15eaa9245efae6d key=feeb9b36649003a6... -> macho x1
+  [OK] c4e0a45c0f5a68f4 key=9622b5532c3308ad... -> macho x1
+  [OK] 0d42ae58baf10097 key=00afe7b09f138818... -> macho x1
+[=] decrypted 30/30 blobs - 6 new Mach-O -> extracted/decrypted/
+
 [=] output directory: extracted/  (manifest.csv/json)
 ```
+
+All 30 blobs now decrypt with no device and no runtime key dump. The last 6 are the
+second-level modules, and their ChaCha20 keys are not in the `7a7d99` manifest — each one sits in
+the *nested* `0x12345678` config that its parent bundle carries as its last `type 0x07` entry
+(468 B = `0x10c` header + 2 × `0x64`), same layout as the manifest: `+0x00` u32 id, `+0x04` 32-byte
+key, `+0x24` name. `child_keys_from_decrypted()` harvests them after the first pass and repeats
+until nothing new appears, which is what takes the run from 24/30 to 30/30.
+
+The 10 second-level modules de-duplicate to **3 distinct binaries**, all
+`/usr/local/lib/SamplePayload.dylib` (referencing `powerd.bundle/powerd` and `/tmp/upgrade.dylib`):
+
+| sha256 | size | arch | served as |
+|---|---|---|---|
+| `e258c0b70ed7b4be…` | 715 760 | arm64 | `0x02300000`, `0x02400000`, `0x02700000`, `0x02800000` |
+| `63ffff883f78ecca…` | 715 760 | arm64 | `0x02900000` only |
+| `59592bc95876eaf3…` | 747 936 | arm64e (PAC) | all five `0xe2…` IDs |
+
+### iOS targeting
+
+`extracted/manifest.csv` / `.json` carry 11 extra columns saying which iOS versions each artifact is
+used on, decoded from the selector in `payloads/bootstrap.dylib`. See
+[extracted/manifest_targeting.md](extracted/manifest_targeting.md); regenerate with
+`python3 annotate_targeting.py --write`.

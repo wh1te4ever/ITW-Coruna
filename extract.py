@@ -403,11 +403,55 @@ def manifest_keys_from_capture(texts, encdir, recs):
     return out
 
 
-def decrypt_with_keylist(encdir, outdir, keys, nonce=b'\x00' * 12, counter=0):
+def child_keys_from_decrypted(outdir):
+    """Second static derivation stage -> {module_hash: key_bytes}.
+
+    Every decrypted stage-3 bundle carries a nested 0x12345678 config as its last
+    type-0x07 entry (0x1D4 B = 0x10c header + 2 x 0x64 entries).  Those entries hold
+    the per-file ChaCha20 keys of the second-level modules the bundle chains to, in the
+    same layout parse_c2_config() uses: [+0x00]u32 id [+0x04]32B key [+0x24]name(64B).
+    Harvesting them resolves the 6 blobs that the manifest alone cannot (0d42ae58,
+    1bda4348, a0d313c0, b15eaa92, c4e0a45c, cb0b1926) -- still fully static.
+    """
+    import glob
+    out = {}
+    for f in sorted(glob.glob(os.path.join(outdir, 'decrypted_raw', '*.bin'))):
+        d = open(f, 'rb').read()
+        if len(d) >= 8 and struct.unpack_from('<I', d, 0)[0] == BEDF00D:
+            d = try_lzma(d[8:]) or b''
+        if len(d) < 8 or struct.unpack_from('<I', d, 0)[0] != F00DBEEF:
+            continue
+        count = struct.unpack_from('<I', d, 4)[0]
+        p = 8
+        for _ in range(min(count, 4096)):
+            if p + 16 > len(d):
+                break
+            _et, _res, off, ln = struct.unpack_from('<IIII', d, p); p += 16
+            blob = d[off:off + ln]
+            if len(blob) >= 8 and struct.unpack_from('<I', blob, 0)[0] == BEDF00D:
+                blob = try_lzma(blob[8:]) or b''
+            if len(blob) < 0x10c or struct.unpack_from('<I', blob, 0)[0] != 0x12345678:
+                continue
+            n = struct.unpack_from('<I', blob, 0x108)[0]
+            q = 0x10c
+            for _ in range(min(n, 4096)):
+                if q + 0x64 > len(blob):
+                    break
+                e = blob[q:q + 0x64]; q += 0x64
+                h = e[0x24:0x64].split(b'\x00')[0].decode('latin1', 'replace').split('.')[0]
+                if len(h) == 40 and all(c in '0123456789abcdef' for c in h):
+                    out[h] = e[4:36]
+    return out
+
+
+def decrypt_with_keylist(encdir, outdir, keys, nonce=b'\x00' * 12, counter=0, known=()):
     """Auto-assign a collected key list (each 64hex) to blobs and decrypt.
     Since each blob has a different key, every key is tried against all
     unresolved blobs via a signature oracle and assigned once confirmed.
-    (No name matching needed -- just collect keys at 0xad8c.)"""
+    (No name matching needed -- just collect keys at 0xad8c.)
+
+    known: blob basenames a previous pass already resolved; they are counted toward
+    the summary but not decrypted again (used by the stage-2 harvest in main())."""
     import glob
     os.makedirs(os.path.join(outdir, 'decrypted'), exist_ok=True)
     os.makedirs(os.path.join(outdir, 'decrypted_raw'), exist_ok=True)
@@ -419,7 +463,7 @@ def decrypt_with_keylist(encdir, outdir, keys, nonce=b'\x00' * 12, counter=0):
         for bi, (_, b) in enumerate(blobs):
             for mb in (struct.pack('<I', F00DBEEF), struct.pack('<I', BEDF00D)):
                 need.setdefault(bytes(a ^ c for a, c in zip(b[:4], mb)), []).append(bi)
-    done = {}
+    done = {bi: b'' for bi, (nm, _) in enumerate(blobs) if nm in set(known)}
     n_macho = 0
     for key in keys:
         if len(key) != 32:
@@ -442,8 +486,8 @@ def decrypt_with_keylist(encdir, outdir, keys, nonce=b'\x00' * 12, counter=0):
                                   f"{name}_{j}_{h}.macho"), 'wb').write(mo)
                 n_macho += 1
             print(f"  [OK] {name[:16]} key={key.hex()[:16]}... -> macho x{len(machos)}")
-    print(f"[=] decrypted {len(done)}/{len(blobs)} blobs - {n_macho} Mach-O "
-          f"-> {outdir}/decrypted/")
+    print(f"[=] decrypted {len(done)}/{len(blobs)} blobs - {n_macho}{' new' if known else ''} "
+          f"Mach-O -> {outdir}/decrypted/")
     miss = [blobs[i][0] for i in range(len(blobs)) if i not in done]
     if miss:
         print(f"[!] {len(miss)} unresolved: need to collect more keys. e.g. {miss[0][:16]} ...")
@@ -965,6 +1009,20 @@ def main():
         keyset |= set(static_keys.values())
         print(f"[*] auto-decrypting with {len(keyset)} total keys ...")
         decrypt_with_keylist(enc_sub, O, list(keyset))
+        #    (c) second stage: each decrypted bundle's nested 0x12345678 config carries the
+        #        keys of the second-level modules it chains to -- harvest and repeat until
+        #        nothing new turns up (this is what takes the run from 24/30 to 30/30).
+        for rnd in range(1, 5):
+            more = {k: v for k, v in child_keys_from_decrypted(O).items()
+                    if v not in keyset}
+            if not more:
+                break
+            keyset |= set(more.values())
+            resolved = {f[:-4] for f in os.listdir(os.path.join(O, 'decrypted_raw'))
+                        if f.endswith('.bin')}
+            print(f"\n[*] stage 2 round {rnd}: harvested {len(more)} second-level key(s) from "
+                  f"nested 0x12345678 configs")
+            decrypt_with_keylist(enc_sub, O, list(more.values()), known=resolved)
 
     print(f"\n[=] output directory: {O}/  (manifest.csv/json)")
 
