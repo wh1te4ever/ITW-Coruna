@@ -29,10 +29,17 @@ NUL = b'\x00'
 # Only these 12 values occur in the capture.  cpufam = {A13 0x462504D2, A14 0x1B588BB3,
 # A15 0xDA33D83D, A16 0x8765EDEA}.
 A13_16 = 'cpufamily in {A13 0x462504D2, A14 0x1B588BB3, A15 0xDA33D83D, A16 0x8765EDEA}'
-# The sub-variant gate is not a version test: it is a sandbox probe, so the SAME iOS version
-# can yield 0xF270 or 0xF275 (and 0xF280 or 0xF283) depending on runtime sandbox reachability.
-GATE = ('ctx+0x5E8 gate (read 0xA2E4, set by sub_89CC @0x89CC via '
-        'sandbox_check(getpid(),"iokit-open-service",NO_REPORT,"IOSurfaceRoot")) must be set')
+# The sub-variant gate is not a version test: it is a sandbox probe on the injected process
+# itself, so the SAME iOS version can yield 0xF270 or 0xF275 (and 0xF280 or 0xF283) depending on
+# where the code runs. gate = (sandbox_check(...) > 0), i.e. 1 means DENIED / confined.
+GATE = ('the ctx+0x5E8 sandbox gate must be SET (sub_89CC @0x89CC, stored 0x8AE8, read 0xA2E4/0xA4A0: '
+        'gate = sandbox_check(getpid(), ...) > 0, so 1 = the injected process is denied/confined. '
+        '0x100000 <= ver <= 0x100500 probes sandbox_check(getpid(),"iokit-open-service",'
+        'SANDBOX_CHECK_NO_REPORT,"IOSurfaceRoot"); ver > 0x100500 probes sandbox_check(getpid(),NULL,0) '
+        '= "sandboxed at all"; otherwise the probe is skipped and the gate is always 0)')
+# ctx+0x5E9 is a recent-silicon flag, NOT a sandbox or runtime-unknown flag.
+E9 = ('ctx+0x5E9 (set at 0x7A48-0x7A90: ver >= 0x0F0400 AND cpufamily in '
+      '{A15 0xDA33D83D, A16 0x8765EDEA, A17 Pro 0x2876F5B5})')
 # '*' in ios_min / ios_max means "no bound in the code", not "unknown".
 HI_F = {   # F-family (0xF2/0xF3) and second-level (0x02/0xE2): bucket | sub-variant
  0x30: ('*', '13.7',   'iOS 13.x and below - no lower bound in sub_AB8C, so 12.x and older too; '
@@ -70,15 +77,15 @@ HI_F = {   # F-family (0xF2/0xF3) and second-level (0x02/0xE2): bucket | sub-var
 
 HI_A = {   # A-family (0xA2/0xA3): no bucket byte at all - bits [19:16] alone carry the version,
            # and the family only exists for iOS 16.0 - 16.6.x (sub_9B60 true => no ID is emitted).
- 0x03: ('16.4', '16.6.x', 'iOS 16.4 - 16.6.x on A13-A16',
+ 0x03: ('16.4', '16.6.x', 'iOS 16.4 - 16.6.x on A13/A14 (pre-A15 of the gated set)',
         'sub_A418 (0xA500-0xA524, 0xA780-0xA7F4): ver >= 0x100400 AND ' + A13_16
-        + '; pair member ctx+0x5E9 == 0; whole path also needs the ctx+0x5E8 gate (0xA4A0)'),
- 0x04: ('16.4', '16.6.x', 'iOS 16.4 - 16.6.x on A13-A16',
-        'as 0x03 but pair member ctx+0x5E9 != 0'),
- 0x05: ('16.0', '16.4',   'iOS 16.0 - 16.4.0',
-        'sub_A418: (ver - 0x100000) <= 0x400; pair member ctx+0x5E9 == 0; needs the ctx+0x5E8 gate'),
- 0x06: ('16.0', '16.4',   'iOS 16.0 - 16.4.0',
-        'as 0x05 but pair member ctx+0x5E9 != 0'),
+        + '; pair member chosen by ' + E9 + ' == 0; whole path also needs ' + GATE),
+ 0x04: ('16.4', '16.6.x', 'iOS 16.4 - 16.6.x on A15/A16/A17 Pro',
+        'as 0x03 but ' + E9 + ' != 0'),
+ 0x05: ('16.0', '16.4',   'iOS 16.0 - 16.4.0 on pre-A15 silicon, or below 15.4',
+        'sub_A418: (ver - 0x100000) <= 0x400; pair member chosen by ' + E9 + ' == 0; also needs ' + GATE),
+ 0x06: ('16.0', '16.4',   'iOS 16.0 - 16.4.0 on A15/A16/A17 Pro',
+        'as 0x05 but ' + E9 + ' != 0'),
 }
 
 # The class byte is NOT a device/OS property: ctx+0xDC is the cpusubtype of the *targeted

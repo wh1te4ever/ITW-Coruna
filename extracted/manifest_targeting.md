@@ -94,12 +94,64 @@ older than an A13, iOS 16.4.1–16.6.x falls through to bucket `0x90` instead of
  0            otherwise, or when the ctx+0x5E8 gate is clear
 ```
 
-`ctx+0x5E8` is **not** a version test — it is a sandbox probe, set by `sub_89CC` @`0x89CC`
-(`sandbox_check(getpid(), "iokit-open-service", NO_REPORT, "IOSurfaceRoot")` for
-`0x100000 <= ver <= 0x100500`, a second probe above that, stored at `0x8AE8`) and read at `0xA2E4`.
-So the *same* iOS version can select `0xF270` or `0xF275`, and `0xF280` or `0xF283`, depending on
-runtime sandbox reachability. Treat base and sub-variant rows as alternates for one version window,
-not as two different windows.
+### What "sandbox gate" means, exactly
+
+`ctx+0x5E8` is **not** a version test. It is the result of a `sandbox_check()` call the loader makes
+**on itself** (`getpid()`), i.e. on whatever process the chain got injected into. Computed by
+`sub_89CC` @`0x89CC`, stored by `sub_8AB8` at `0x8AE8`, read at `0xA2E4` (F-family), `0xA4A0`
+(A-family), `0x628C` and `0x695C`.
+
+```c
+// sub_89CC @0x89CC
+if (sub_9B60(ctx) & 1) { gate = 0; }                       // any bucket-0x90 case: probe skipped
+else if (ver > 0x100500 || (ver - 0x0F0707) <= 0xF8F8)     // 16.5.1+  (0x8A10 / 0x8A28)
+     gate = sandbox_check(getpid(), NULL, 0) > 0;          // "am I in a sandbox at all?"  0x8A64-0x8A70
+else if (ver >= 0x100000)                                  // 16.0.0 - 16.5.0              0x8A2C
+     gate = sandbox_check(getpid(), "iokit-open-service",
+                          SANDBOX_CHECK_NO_REPORT,
+                          "IOSurfaceRoot") > 0;            // 0x8A34-0x8A70
+else gate = 0;                                             // <= 15.7.6: probe skipped
+```
+
+The 4th argument is a stack vararg (`ADR X8, aIosurfaceroot` / `STR X8, [SP]` at `0x8A44`/`0x8A4C`),
+which is why Hex-Rays renders the call with only three arguments.
+
+**Polarity matters:** `sandbox_check()` returns 1 when the operation is *denied* (and, with a NULL
+operation, 1 when the process *is* sandboxed), 0 when it is permitted, and -1 on error. The loader
+does `CSET W8, GT` (`0x8A78`), so:
+
+| gate | meaning | which payload |
+|---|---|---|
+| `1` | the injected process is **confined** — on 16.0–16.5.0 it may not open the `IOSurfaceRoot` IOKit service; on 16.5.1–16.6.x it is sandboxed at all | sub-variant ID (`0xF275`, `0xF373`, `0xF383`, …) |
+| `0` | permitted / unconfined, or the probe was skipped (iOS ≤ 15.7.6, or any bucket-`0x90` case), or `sandbox_check` errored | base ID (`0xF270`, `0xF280`, …) |
+
+So the *same device on the same iOS* gets `0xF270` or `0xF275` depending on **where** the code runs,
+not on **which** iOS. Treat base and sub-variant rows as alternates for one version window, not as
+two different windows. Note the sub-variant bundles are exactly the ones carrying an extra
+`type 0x0a` module (50 344 B) — consistent with needing more work to escape a confined process.
+`sub_7720` also records a `strstr(…, "WebContent")` flag at `ctx+0x5FC` (`0x77D4`), so the loader
+does distinguish the WebContent case explicitly; the causal link to the extra module is inference,
+not something the code states.
+
+Because the probe is skipped below iOS 16.0, the gate is **always 0** for iOS ≤ 15.7.6 — which is
+why no `+3`/`+5` ID exists for buckets `0x30`, `0x40` or the 14.5–15.7.6 part of `0x70`.
+
+### `ctx+0x5E9` — the A-family pair selector
+
+Different flag, nothing to do with sandboxing. Set at `0x7A48`–`0x7A90`:
+
+```asm
+7A48  LSR  W8, W8, #0xA        ; ver >> 10
+7A4C  CMP  W8, #0x3C1          ; >= 0x3C1<<10 = 0x0F0400  (iOS 15.4.0)
+7A50  B.CC -> 0x7A88           ; below that -> 0
+7A54  LDR  W8, [X19,#0xE0]     ; cpufamily
+      cmp 0x8765EDEA (A16) / 0xDA33D83D (A15) / 0x2876F5B5 (A17 Pro) -> keep 1, else 0
+7A90  STRB W20, [X19,#0x5E9]
+```
+
+So `ctx+0x5E9 = (ver >= 15.4.0 && cpufamily ∈ {A15, A16, A17 Pro})` — a recent-silicon flag. It is
+what splits the A-family pairs: `0xA303`/`0xA305` are the `== 0` members, `0xA304`/`0xA306` the
+`!= 0` ones.
 
 iOS 16.4.0 exactly falls in both windows; the `+3` branch is tested first, so **16.4.0 on A13–A16
 yields `+3`, and on any older SoC `+5`**.
@@ -233,8 +285,11 @@ re-named per bucket — with one real exception: the `0x90` bucket gets its own 
   bucket byte is inherited from the parent bundle, but `sub_9CB8` in this build would emit class
   `0x10`/`0x11` rather than `0x02`/`0xE2` for those versions, so they are not reproducible from this
   binary alone.
-- The `ctx+0x5E8` / `ctx+0x5E9` / `ctx+0xDB` flags are never written inside this dylib — they are
-  supplied by the caller, so which member of a sub-variant pair is used cannot be determined
-  statically from this artifact.
+- `ctx+0x5E8` and `ctx+0x5E9` **are** computed inside this dylib and are fully decoded above (a
+  `sandbox_check()` on the injected process, and a "iOS ≥ 15.4 on A15/A16/A17 Pro" flag). What
+  remains caller-supplied, read but never written here, is `ctx+0xDB` (read only at `0x9E08` and
+  `0xA38C`; clearing bit 0 switches the class byte to `0xF1000000`, a family with no entries in this
+  capture) and `ctx+0xDC` (the `task_info` cpusubtype). `ctx+0xD0` is the kernel version, packed
+  from `sscanf(…, "xnu-%d.%d.%d.%d.%d%*s")` at `0x7960`–`0x7998`.
 - Rows with no `target_id` are not ID-selected at all (the manifest itself, the bootstrap variants,
   the carved `__text` blob, the next-stage JS).

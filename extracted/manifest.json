@@ -170,7 +170,7 @@
     "ios_min": "16.0",
     "ios_max": "16.4",
     "ios_target": "iOS 16.0 - 16.4.0 (16.4.0 itself only on pre-A13; A13-A16 take +3)",
-    "select_gate": "bucket 0x70 AND sub_A294 +5 (0xA370-0xA37C): (ver - 0x100000) < 0x401; ctx+0x5E8 gate (read 0xA2E4, set by sub_89CC @0x89CC via sandbox_check(getpid(),\"iokit-open-service\",NO_REPORT,\"IOSurfaceRoot\")) must be set",
+    "select_gate": "bucket 0x70 AND sub_A294 +5 (0xA370-0xA37C): (ver - 0x100000) < 0x401; the ctx+0x5E8 sandbox gate must be SET (sub_89CC @0x89CC, stored 0x8AE8, read 0xA2E4/0xA4A0: gate = sandbox_check(getpid(), ...) > 0, so 1 = the injected process is denied/confined. 0x100000 <= ver <= 0x100500 probes sandbox_check(getpid(),\"iokit-open-service\",SANDBOX_CHECK_NO_REPORT,\"IOSurfaceRoot\"); ver > 0x100500 probes sandbox_check(getpid(),NULL,0) = \"sandboxed at all\"; otherwise the probe is skipped and the gate is always 0)",
     "role": "stage3 payload bundle (F-family, selected by sub_A294 @0xA294)",
     "confidence": "high"
   },
@@ -188,7 +188,7 @@
     "ios_min": "16.0",
     "ios_max": "16.4",
     "ios_target": "iOS 16.0 - 16.4.0 (16.4.0 itself only on pre-A13; A13-A16 take +3)",
-    "select_gate": "bucket 0x70 AND sub_A294 +5 (0xA370-0xA37C): (ver - 0x100000) < 0x401; ctx+0x5E8 gate (read 0xA2E4, set by sub_89CC @0x89CC via sandbox_check(getpid(),\"iokit-open-service\",NO_REPORT,\"IOSurfaceRoot\")) must be set",
+    "select_gate": "bucket 0x70 AND sub_A294 +5 (0xA370-0xA37C): (ver - 0x100000) < 0x401; the ctx+0x5E8 sandbox gate must be SET (sub_89CC @0x89CC, stored 0x8AE8, read 0xA2E4/0xA4A0: gate = sandbox_check(getpid(), ...) > 0, so 1 = the injected process is denied/confined. 0x100000 <= ver <= 0x100500 probes sandbox_check(getpid(),\"iokit-open-service\",SANDBOX_CHECK_NO_REPORT,\"IOSurfaceRoot\"); ver > 0x100500 probes sandbox_check(getpid(),NULL,0) = \"sandboxed at all\"; otherwise the probe is skipped and the gate is always 0)",
     "role": "stage3 payload bundle (F-family, selected by sub_A294 @0xA294)",
     "confidence": "high"
   },
@@ -222,8 +222,8 @@
     "target_proc_abi": "arm64e",
     "ios_min": "16.4",
     "ios_max": "16.6.x",
-    "ios_target": "iOS 16.4 - 16.6.x on A13-A16",
-    "select_gate": "sub_A418 (0xA500-0xA524, 0xA780-0xA7F4): ver >= 0x100400 AND cpufamily in {A13 0x462504D2, A14 0x1B588BB3, A15 0xDA33D83D, A16 0x8765EDEA}; pair member ctx+0x5E9 == 0; whole path also needs the ctx+0x5E8 gate (0xA4A0)",
+    "ios_target": "iOS 16.4 - 16.6.x on A13/A14 (pre-A15 of the gated set)",
+    "select_gate": "sub_A418 (0xA500-0xA524, 0xA780-0xA7F4): ver >= 0x100400 AND cpufamily in {A13 0x462504D2, A14 0x1B588BB3, A15 0xDA33D83D, A16 0x8765EDEA}; pair member chosen by ctx+0x5E9 (set at 0x7A48-0x7A90: ver >= 0x0F0400 AND cpufamily in {A15 0xDA33D83D, A16 0x8765EDEA, A17 Pro 0x2876F5B5}) == 0; whole path also needs the ctx+0x5E8 sandbox gate must be SET (sub_89CC @0x89CC, stored 0x8AE8, read 0xA2E4/0xA4A0: gate = sandbox_check(getpid(), ...) > 0, so 1 = the injected process is denied/confined. 0x100000 <= ver <= 0x100500 probes sandbox_check(getpid(),\"iokit-open-service\",SANDBOX_CHECK_NO_REPORT,\"IOSurfaceRoot\"); ver > 0x100500 probes sandbox_check(getpid(),NULL,0) = \"sandboxed at all\"; otherwise the probe is skipped and the gate is always 0)",
     "role": "stage3 payload bundle (A-family, selected by sub_A418 @0xA418)",
     "confidence": "high"
   },
@@ -257,7 +257,7 @@
     "ios_min": "14.5",
     "ios_max": "15.7.6",
     "ios_target": "iOS 14.5 - 15.7.6; also 16.0 - 16.4.0 on any SoC and 16.4.1 - 16.5.0 on A13-A16, when the sandbox gate is clear",
-    "select_gate": "sub_AB8C: 0x0E0500 <= ver <= 0x0F0706, or 0x100000 <= ver <= 0x100500 while the ctx+0x5E8 gate (read 0xA2E4, set by sub_89CC @0x89CC via sandbox_check(getpid(),\"iokit-open-service\",NO_REPORT,\"IOSurfaceRoot\")) is clear. Carve-outs from sub_9B60, which runs FIRST: 15.2.0-15.7.6 on an iPad-class device diverts to 0x90, and 16.4.1-16.5.0 stays here only if cpufamily in {A13 0x462504D2, A14 0x1B588BB3, A15 0xDA33D83D, A16 0x8765EDEA}",
+    "select_gate": "sub_AB8C: 0x0E0500 <= ver <= 0x0F0706, or 0x100000 <= ver <= 0x100500 while the the ctx+0x5E8 sandbox gate must be SET (sub_89CC @0x89CC, stored 0x8AE8, read 0xA2E4/0xA4A0: gate = sandbox_check(getpid(), ...) > 0, so 1 = the injected process is denied/confined. 0x100000 <= ver <= 0x100500 probes sandbox_check(getpid(),\"iokit-open-service\",SANDBOX_CHECK_NO_REPORT,\"IOSurfaceRoot\"); ver > 0x100500 probes sandbox_check(getpid(),NULL,0) = \"sandboxed at all\"; otherwise the probe is skipped and the gate is always 0). Carve-outs from sub_9B60, which runs FIRST: 15.2.0-15.7.6 on an iPad-class device diverts to 0x90, and 16.4.1-16.5.0 stays here only if cpufamily in {A13 0x462504D2, A14 0x1B588BB3, A15 0xDA33D83D, A16 0x8765EDEA}",
     "role": "second-level module (/usr/local/lib/SamplePayload.dylib), bucket inherited from the parent bundle (sub_9CB8 @0x9CB8)",
     "confidence": "high"
   },
@@ -274,7 +274,7 @@
     "ios_min": "14.5",
     "ios_max": "15.7.6",
     "ios_target": "iOS 14.5 - 15.7.6; also 16.0 - 16.4.0 on any SoC and 16.4.1 - 16.5.0 on A13-A16, when the sandbox gate is clear",
-    "select_gate": "sub_AB8C: 0x0E0500 <= ver <= 0x0F0706, or 0x100000 <= ver <= 0x100500 while the ctx+0x5E8 gate (read 0xA2E4, set by sub_89CC @0x89CC via sandbox_check(getpid(),\"iokit-open-service\",NO_REPORT,\"IOSurfaceRoot\")) is clear. Carve-outs from sub_9B60, which runs FIRST: 15.2.0-15.7.6 on an iPad-class device diverts to 0x90, and 16.4.1-16.5.0 stays here only if cpufamily in {A13 0x462504D2, A14 0x1B588BB3, A15 0xDA33D83D, A16 0x8765EDEA}",
+    "select_gate": "sub_AB8C: 0x0E0500 <= ver <= 0x0F0706, or 0x100000 <= ver <= 0x100500 while the the ctx+0x5E8 sandbox gate must be SET (sub_89CC @0x89CC, stored 0x8AE8, read 0xA2E4/0xA4A0: gate = sandbox_check(getpid(), ...) > 0, so 1 = the injected process is denied/confined. 0x100000 <= ver <= 0x100500 probes sandbox_check(getpid(),\"iokit-open-service\",SANDBOX_CHECK_NO_REPORT,\"IOSurfaceRoot\"); ver > 0x100500 probes sandbox_check(getpid(),NULL,0) = \"sandboxed at all\"; otherwise the probe is skipped and the gate is always 0). Carve-outs from sub_9B60, which runs FIRST: 15.2.0-15.7.6 on an iPad-class device diverts to 0x90, and 16.4.1-16.5.0 stays here only if cpufamily in {A13 0x462504D2, A14 0x1B588BB3, A15 0xDA33D83D, A16 0x8765EDEA}",
     "role": "stage3 payload bundle (F-family, selected by sub_A294 @0xA294)",
     "confidence": "high"
   },
@@ -292,7 +292,7 @@
     "ios_min": "16.5.1",
     "ios_max": "16.6.x",
     "ios_target": "iOS 16.5.1 - 16.6.x on A13-A16",
-    "select_gate": "bucket 0x80 (ver > 0x100500) AND sub_A294 +3: cpufamily in {A13 0x462504D2, A14 0x1B588BB3, A15 0xDA33D83D, A16 0x8765EDEA}; ctx+0x5E8 gate (read 0xA2E4, set by sub_89CC @0x89CC via sandbox_check(getpid(),\"iokit-open-service\",NO_REPORT,\"IOSurfaceRoot\")) must be set",
+    "select_gate": "bucket 0x80 (ver > 0x100500) AND sub_A294 +3: cpufamily in {A13 0x462504D2, A14 0x1B588BB3, A15 0xDA33D83D, A16 0x8765EDEA}; the ctx+0x5E8 sandbox gate must be SET (sub_89CC @0x89CC, stored 0x8AE8, read 0xA2E4/0xA4A0: gate = sandbox_check(getpid(), ...) > 0, so 1 = the injected process is denied/confined. 0x100000 <= ver <= 0x100500 probes sandbox_check(getpid(),\"iokit-open-service\",SANDBOX_CHECK_NO_REPORT,\"IOSurfaceRoot\"); ver > 0x100500 probes sandbox_check(getpid(),NULL,0) = \"sandboxed at all\"; otherwise the probe is skipped and the gate is always 0)",
     "role": "stage3 payload bundle (F-family, selected by sub_A294 @0xA294)",
     "confidence": "high"
   },
@@ -326,8 +326,8 @@
     "target_proc_abi": "arm64e",
     "ios_min": "16.4",
     "ios_max": "16.6.x",
-    "ios_target": "iOS 16.4 - 16.6.x on A13-A16",
-    "select_gate": "as 0x03 but pair member ctx+0x5E9 != 0",
+    "ios_target": "iOS 16.4 - 16.6.x on A15/A16/A17 Pro",
+    "select_gate": "as 0x03 but ctx+0x5E9 (set at 0x7A48-0x7A90: ver >= 0x0F0400 AND cpufamily in {A15 0xDA33D83D, A16 0x8765EDEA, A17 Pro 0x2876F5B5}) != 0",
     "role": "stage3 payload bundle (A-family, selected by sub_A418 @0xA418)",
     "confidence": "high"
   },
@@ -406,8 +406,8 @@
     "target_proc_abi": "arm64e",
     "ios_min": "16.0",
     "ios_max": "16.4",
-    "ios_target": "iOS 16.0 - 16.4.0",
-    "select_gate": "sub_A418: (ver - 0x100000) <= 0x400; pair member ctx+0x5E9 == 0; needs the ctx+0x5E8 gate",
+    "ios_target": "iOS 16.0 - 16.4.0 on pre-A15 silicon, or below 15.4",
+    "select_gate": "sub_A418: (ver - 0x100000) <= 0x400; pair member chosen by ctx+0x5E9 (set at 0x7A48-0x7A90: ver >= 0x0F0400 AND cpufamily in {A15 0xDA33D83D, A16 0x8765EDEA, A17 Pro 0x2876F5B5}) == 0; also needs the ctx+0x5E8 sandbox gate must be SET (sub_89CC @0x89CC, stored 0x8AE8, read 0xA2E4/0xA4A0: gate = sandbox_check(getpid(), ...) > 0, so 1 = the injected process is denied/confined. 0x100000 <= ver <= 0x100500 probes sandbox_check(getpid(),\"iokit-open-service\",SANDBOX_CHECK_NO_REPORT,\"IOSurfaceRoot\"); ver > 0x100500 probes sandbox_check(getpid(),NULL,0) = \"sandboxed at all\"; otherwise the probe is skipped and the gate is always 0)",
     "role": "stage3 payload bundle (A-family, selected by sub_A418 @0xA418)",
     "confidence": "high"
   },
@@ -475,7 +475,7 @@
     "ios_min": "14.5",
     "ios_max": "15.7.6",
     "ios_target": "iOS 14.5 - 15.7.6; also 16.0 - 16.4.0 on any SoC and 16.4.1 - 16.5.0 on A13-A16, when the sandbox gate is clear",
-    "select_gate": "sub_AB8C: 0x0E0500 <= ver <= 0x0F0706, or 0x100000 <= ver <= 0x100500 while the ctx+0x5E8 gate (read 0xA2E4, set by sub_89CC @0x89CC via sandbox_check(getpid(),\"iokit-open-service\",NO_REPORT,\"IOSurfaceRoot\")) is clear. Carve-outs from sub_9B60, which runs FIRST: 15.2.0-15.7.6 on an iPad-class device diverts to 0x90, and 16.4.1-16.5.0 stays here only if cpufamily in {A13 0x462504D2, A14 0x1B588BB3, A15 0xDA33D83D, A16 0x8765EDEA}",
+    "select_gate": "sub_AB8C: 0x0E0500 <= ver <= 0x0F0706, or 0x100000 <= ver <= 0x100500 while the the ctx+0x5E8 sandbox gate must be SET (sub_89CC @0x89CC, stored 0x8AE8, read 0xA2E4/0xA4A0: gate = sandbox_check(getpid(), ...) > 0, so 1 = the injected process is denied/confined. 0x100000 <= ver <= 0x100500 probes sandbox_check(getpid(),\"iokit-open-service\",SANDBOX_CHECK_NO_REPORT,\"IOSurfaceRoot\"); ver > 0x100500 probes sandbox_check(getpid(),NULL,0) = \"sandboxed at all\"; otherwise the probe is skipped and the gate is always 0). Carve-outs from sub_9B60, which runs FIRST: 15.2.0-15.7.6 on an iPad-class device diverts to 0x90, and 16.4.1-16.5.0 stays here only if cpufamily in {A13 0x462504D2, A14 0x1B588BB3, A15 0xDA33D83D, A16 0x8765EDEA}",
     "role": "stage3 payload bundle (F-family, selected by sub_A294 @0xA294)",
     "confidence": "high"
   },
@@ -492,8 +492,8 @@
     "target_proc_abi": "arm64e",
     "ios_min": "16.0",
     "ios_max": "16.4",
-    "ios_target": "iOS 16.0 - 16.4.0",
-    "select_gate": "as 0x05 but pair member ctx+0x5E9 != 0",
+    "ios_target": "iOS 16.0 - 16.4.0 on A15/A16/A17 Pro",
+    "select_gate": "as 0x05 but ctx+0x5E9 (set at 0x7A48-0x7A90: ver >= 0x0F0400 AND cpufamily in {A15 0xDA33D83D, A16 0x8765EDEA, A17 Pro 0x2876F5B5}) != 0",
     "role": "stage3 payload bundle (A-family, selected by sub_A418 @0xA418)",
     "confidence": "high"
   },
@@ -544,8 +544,8 @@
     "target_proc_abi": "arm64",
     "ios_min": "16.0",
     "ios_max": "16.4",
-    "ios_target": "iOS 16.0 - 16.4.0",
-    "select_gate": "sub_A418: (ver - 0x100000) <= 0x400; pair member ctx+0x5E9 == 0; needs the ctx+0x5E8 gate",
+    "ios_target": "iOS 16.0 - 16.4.0 on pre-A15 silicon, or below 15.4",
+    "select_gate": "sub_A418: (ver - 0x100000) <= 0x400; pair member chosen by ctx+0x5E9 (set at 0x7A48-0x7A90: ver >= 0x0F0400 AND cpufamily in {A15 0xDA33D83D, A16 0x8765EDEA, A17 Pro 0x2876F5B5}) == 0; also needs the ctx+0x5E8 sandbox gate must be SET (sub_89CC @0x89CC, stored 0x8AE8, read 0xA2E4/0xA4A0: gate = sandbox_check(getpid(), ...) > 0, so 1 = the injected process is denied/confined. 0x100000 <= ver <= 0x100500 probes sandbox_check(getpid(),\"iokit-open-service\",SANDBOX_CHECK_NO_REPORT,\"IOSurfaceRoot\"); ver > 0x100500 probes sandbox_check(getpid(),NULL,0) = \"sandboxed at all\"; otherwise the probe is skipped and the gate is always 0)",
     "role": "stage3 payload bundle (A-family, selected by sub_A418 @0xA418)",
     "confidence": "high"
   },
@@ -579,7 +579,7 @@
     "ios_min": "14.5",
     "ios_max": "15.7.6",
     "ios_target": "iOS 14.5 - 15.7.6; also 16.0 - 16.4.0 on any SoC and 16.4.1 - 16.5.0 on A13-A16, when the sandbox gate is clear",
-    "select_gate": "sub_AB8C: 0x0E0500 <= ver <= 0x0F0706, or 0x100000 <= ver <= 0x100500 while the ctx+0x5E8 gate (read 0xA2E4, set by sub_89CC @0x89CC via sandbox_check(getpid(),\"iokit-open-service\",NO_REPORT,\"IOSurfaceRoot\")) is clear. Carve-outs from sub_9B60, which runs FIRST: 15.2.0-15.7.6 on an iPad-class device diverts to 0x90, and 16.4.1-16.5.0 stays here only if cpufamily in {A13 0x462504D2, A14 0x1B588BB3, A15 0xDA33D83D, A16 0x8765EDEA}",
+    "select_gate": "sub_AB8C: 0x0E0500 <= ver <= 0x0F0706, or 0x100000 <= ver <= 0x100500 while the the ctx+0x5E8 sandbox gate must be SET (sub_89CC @0x89CC, stored 0x8AE8, read 0xA2E4/0xA4A0: gate = sandbox_check(getpid(), ...) > 0, so 1 = the injected process is denied/confined. 0x100000 <= ver <= 0x100500 probes sandbox_check(getpid(),\"iokit-open-service\",SANDBOX_CHECK_NO_REPORT,\"IOSurfaceRoot\"); ver > 0x100500 probes sandbox_check(getpid(),NULL,0) = \"sandboxed at all\"; otherwise the probe is skipped and the gate is always 0). Carve-outs from sub_9B60, which runs FIRST: 15.2.0-15.7.6 on an iPad-class device diverts to 0x90, and 16.4.1-16.5.0 stays here only if cpufamily in {A13 0x462504D2, A14 0x1B588BB3, A15 0xDA33D83D, A16 0x8765EDEA}",
     "role": "second-level module (/usr/local/lib/SamplePayload.dylib), bucket inherited from the parent bundle (sub_9CB8 @0x9CB8)",
     "confidence": "high"
   },
@@ -597,7 +597,7 @@
     "ios_min": "16.4",
     "ios_max": "16.5",
     "ios_target": "iOS 16.4 - 16.5 on A13-A16",
-    "select_gate": "bucket 0x70 (ver <= 0x100500) AND sub_A294 +3 (0xA300-0xA368): (ver - 0x100400) >> 10 <= 0x3E AND cpufamily in {A13 0x462504D2, A14 0x1B588BB3, A15 0xDA33D83D, A16 0x8765EDEA}; ctx+0x5E8 gate (read 0xA2E4, set by sub_89CC @0x89CC via sandbox_check(getpid(),\"iokit-open-service\",NO_REPORT,\"IOSurfaceRoot\")) must be set",
+    "select_gate": "bucket 0x70 (ver <= 0x100500) AND sub_A294 +3 (0xA300-0xA368): (ver - 0x100400) >> 10 <= 0x3E AND cpufamily in {A13 0x462504D2, A14 0x1B588BB3, A15 0xDA33D83D, A16 0x8765EDEA}; the ctx+0x5E8 sandbox gate must be SET (sub_89CC @0x89CC, stored 0x8AE8, read 0xA2E4/0xA4A0: gate = sandbox_check(getpid(), ...) > 0, so 1 = the injected process is denied/confined. 0x100000 <= ver <= 0x100500 probes sandbox_check(getpid(),\"iokit-open-service\",SANDBOX_CHECK_NO_REPORT,\"IOSurfaceRoot\"); ver > 0x100500 probes sandbox_check(getpid(),NULL,0) = \"sandboxed at all\"; otherwise the probe is skipped and the gate is always 0)",
     "role": "stage3 payload bundle (F-family, selected by sub_A294 @0xA294)",
     "confidence": "high"
   }
